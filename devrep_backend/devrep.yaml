@@ -1,0 +1,2487 @@
+openapi: 3.0.0
+info:
+  title: DevRep
+  version: 1.0.0
+  termsOfService: ''
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+  contact: {}
+  description: DevRep J2EE project
+servers:
+  - url: 'http://localhost:3000'
+paths:
+  '/user/{userId}':
+    post:
+      tags:
+        - user
+      summary: Create user
+      description: This can only be done by the logged in user.
+      operationId: createUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int64
+                isAdmin:
+                  type: boolean
+                  default: false
+                name:
+                  type: string
+                email:
+                  type: string
+                lastname:
+                  type: string
+                phone:
+                  type: string
+                address:
+                  type: string
+                photo:
+                  type: string
+                conferences:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Conference'
+        description: Created user object
+        required: true
+      parameters: []
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  isAdmin:
+                    type: boolean
+                    default: false
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  lastname:
+                    type: string
+                  phone:
+                    type: string
+                  address:
+                    type: string
+                  photo:
+                    type: string
+                  conferences:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Conference'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    get:
+      summary: Get User by Id
+      operationId: get-user
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  isAdmin:
+                    type: boolean
+                    default: false
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  lastname:
+                    type: string
+                  phone:
+                    type: string
+                  address:
+                    type: string
+                  photo:
+                    type: string
+                  conferences:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Conference'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Get User by Id
+      tags:
+        - user
+    parameters:
+      - schema:
+          type: number
+        name: userId
+        in: path
+        required: true
+    put:
+      summary: Updates User by Id
+      operationId: put-user-userId
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Updates User by Id
+      tags:
+        - user
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: integer
+                  format: int64
+                isAdmin:
+                  type: boolean
+                  default: false
+                name:
+                  type: string
+                email:
+                  type: string
+                lastname:
+                  type: string
+                phone:
+                  type: string
+                address:
+                  type: string
+                photo:
+                  type: string
+                conferences:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Conference'
+      security:
+        - api_key: []
+  /user/login:
+    get:
+      tags:
+        - user
+      summary: Logs user into the system
+      description: Logs user into the system
+      operationId: loginUser
+      parameters:
+        - name: username
+          in: query
+          description: The user name for login
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          description: The password for login in clear text
+          required: true
+          schema:
+            type: string
+            format: password
+      responses:
+        '200':
+          description: successful operation
+          headers:
+            X-Rate-Limit:
+              description: calls per hour allowed by the user
+              schema:
+                type: integer
+                format: int32
+            X-Expires-After:
+              description: date in UTC when token expires
+              schema:
+                type: string
+                format: date-time
+          content:
+            application/xml:
+              schema:
+                type: string
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Invalid username/password supplied
+  /user/logout:
+    get:
+      tags:
+        - user
+      summary: Logs out current logged in user session
+      description: Log out user
+      operationId: logoutUser
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: username
+          required: true
+        - schema:
+            type: string
+          in: query
+          name: token
+          required: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  '/user/getUser/{username}':
+    get:
+      tags:
+        - user
+      summary: Get user by user name
+      description: Get the user for the provided name
+      operationId: getUserByName
+      parameters:
+        - name: username
+          in: path
+          description: 'The name that needs to be fetched. Use user1 for testing. '
+          required: true
+          schema:
+            type: string
+        - schema:
+            type: string
+          in: query
+          name: username
+          required: true
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  isAdmin:
+                    type: boolean
+                    default: false
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  lastname:
+                    type: string
+                  phone:
+                    type: string
+                  address:
+                    type: string
+                  photo:
+                    type: string
+                  conferences:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Conference'
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  isAdmin:
+                    type: boolean
+                    default: false
+                  name:
+                    type: string
+                  email:
+                    type: string
+                  lastname:
+                    type: string
+                  phone:
+                    type: string
+                  address:
+                    type: string
+                  photo:
+                    type: string
+                  conferences:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Conference'
+        '400':
+          description: Invalid username supplied
+        '404':
+          description: User not found
+    parameters:
+      - schema:
+          type: string
+        name: username
+        in: path
+        required: true
+  /conference:
+    post:
+      tags:
+        - conference
+      summary: Add a new Conference
+      description: Adds a new conference
+      operationId: addConference
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              xml:
+                name: Conference
+              properties:
+                id:
+                  type: integer
+                  format: int64
+                category:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      category:
+                        type: string
+                      price:
+                        type: number
+                      expires:
+                        type: string
+                name:
+                  type: string
+                  example: doggie
+                photoUrls:
+                  type: array
+                  items:
+                    type: string
+                status:
+                  type: string
+                  description: Conference status in the store
+                  enum:
+                    - available
+                    - pending
+                    - sold
+                url:
+                  type: string
+                date:
+                  type: string
+                photos:
+                  type: array
+                  items:
+                    type: string
+                admins:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/User'
+              required:
+                - id
+                - name
+                - url
+                - date
+      parameters: []
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+        '501':
+          description: Not Implemented
+        '502':
+          description: Bad Gateway
+    put:
+      tags:
+        - conference
+      summary: Update an existing Conference
+      description: Updates a confernece
+      operationId: updateConference
+      security:
+        - api_key: []
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              xml:
+                name: Conference
+              properties:
+                id:
+                  type: integer
+                  format: int64
+                category:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: number
+                      category:
+                        type: string
+                      price:
+                        type: number
+                      expires:
+                        type: string
+                name:
+                  type: string
+                  example: doggie
+                photoUrls:
+                  type: array
+                  items:
+                    type: string
+                status:
+                  type: string
+                  description: Conference status in the store
+                  enum:
+                    - available
+                    - pending
+                    - sold
+                url:
+                  type: string
+                date:
+                  type: string
+                photos:
+                  type: array
+                  items:
+                    type: string
+                admins:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/User'
+              required:
+                - id
+                - name
+                - url
+                - date
+  /conference/findByStatus:
+    get:
+      tags:
+        - conference
+      summary: Finds Conferences by status
+      description: Multiple status values can be provided with comma separated strings
+      operationId: findConferencesByStatus
+      parameters:
+        - name: status
+          in: query
+          description: Status values that need to be considered for filter
+          required: true
+          explode: true
+          schema:
+            type: array
+            items:
+              type: string
+              enum:
+                - available
+                - pending
+                - sold
+              default: available
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: array
+                items:
+                  type: object
+                  xml:
+                    name: Conference
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    category:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: number
+                          category:
+                            type: string
+                          price:
+                            type: number
+                          expires:
+                            type: string
+                    name:
+                      type: string
+                      example: doggie
+                    photoUrls:
+                      type: array
+                      items:
+                        type: string
+                    status:
+                      type: string
+                      description: Conference status in the store
+                      enum:
+                        - available
+                        - pending
+                        - sold
+                    url:
+                      type: string
+                    date:
+                      type: string
+                    photos:
+                      type: array
+                      items:
+                        type: string
+                    admins:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/User'
+                  required:
+                    - id
+                    - name
+                    - url
+                    - date
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  xml:
+                    name: Conference
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    category:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: number
+                          category:
+                            type: string
+                          price:
+                            type: number
+                          expires:
+                            type: string
+                    name:
+                      type: string
+                      example: doggie
+                    photoUrls:
+                      type: array
+                      items:
+                        type: string
+                    status:
+                      type: string
+                      description: Conference status in the store
+                      enum:
+                        - available
+                        - pending
+                        - sold
+                    url:
+                      type: string
+                    date:
+                      type: string
+                    photos:
+                      type: array
+                      items:
+                        type: string
+                    admins:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/User'
+                  required:
+                    - id
+                    - name
+                    - url
+                    - date
+        '400':
+          description: Invalid status value
+      security:
+        - api_key: []
+  '/conference/{conferenceId}':
+    get:
+      tags:
+        - conference
+      summary: Find conference by ID
+      description: Returns a single conference
+      operationId: getConferenceById
+      parameters:
+        - name: conferenceId
+          in: path
+          description: ID of conference to return
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: object
+                xml:
+                  name: Conference
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  category:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        category:
+                          type: string
+                        price:
+                          type: number
+                        expires:
+                          type: string
+                  name:
+                    type: string
+                    example: doggie
+                  photoUrls:
+                    type: array
+                    items:
+                      type: string
+                  status:
+                    type: string
+                    description: Conference status in the store
+                    enum:
+                      - available
+                      - pending
+                      - sold
+                  url:
+                    type: string
+                  date:
+                    type: string
+                  photos:
+                    type: array
+                    items:
+                      type: string
+                  admins:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                required:
+                  - id
+                  - name
+                  - url
+                  - date
+            application/json:
+              schema:
+                type: object
+                xml:
+                  name: Conference
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  category:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: number
+                        category:
+                          type: string
+                        price:
+                          type: number
+                        expires:
+                          type: string
+                  name:
+                    type: string
+                    example: doggie
+                  photoUrls:
+                    type: array
+                    items:
+                      type: string
+                  status:
+                    type: string
+                    description: Conference status in the store
+                    enum:
+                      - available
+                      - pending
+                      - sold
+                  url:
+                    type: string
+                  date:
+                    type: string
+                  photos:
+                    type: array
+                    items:
+                      type: string
+                  admins:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/User'
+                required:
+                  - id
+                  - name
+                  - url
+                  - date
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Conference not found
+      security: []
+    delete:
+      tags:
+        - conference
+      summary: Deletes a conference
+      description: Deletes a conference
+      operationId: deleteConference
+      parameters:
+        - name: api_key
+          in: header
+          required: false
+          schema:
+            type: string
+        - name: conferenceId
+          in: path
+          description: Conference id to delete
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Conference not found
+        '500':
+          description: Internal Server Error
+      security:
+        - api_key: []
+  '/conference/{conferenceId}/uploadImage':
+    post:
+      tags:
+        - conference
+      summary: Uploads an image for conference
+      description: Uploads an image for conference
+      operationId: uploadFile
+      parameters:
+        - name: conferenceId
+          in: path
+          description: ID of conference to update
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    format: int32
+                  type:
+                    type: string
+                  message:
+                    type: string
+      security:
+        - api_key: []
+      requestBody:
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+    put:
+      summary: Update Image
+      operationId: put-conference-conferenceId-uploadImage
+      responses:
+        '200':
+          description: OK
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Upload Conference Image
+      tags:
+        - conference
+      security:
+        - api_key: []
+    parameters:
+      - schema:
+          type: number
+        name: conferenceId
+        in: path
+        required: true
+  '/user/isAdmin/{userId}':
+    get:
+      tags:
+        - user
+      summary: Check if user is Admin
+      description: This can only be done by the logged in user.
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: boolean
+                enum:
+                  - Admin
+                  - Not_Admin
+              examples:
+                admin: {}
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      parameters: []
+      operationId: isAdmin
+    parameters:
+      - schema:
+          type: number
+        name: userId
+        in: path
+        required: true
+  '/order/{orderId}':
+    get:
+      summary: Find purchase order by ID
+      description: 'For valid response try integer IDs with value >= 1 and <= 10. Other values will generated exceptions'
+      operationId: getOrderById
+      parameters:
+        - name: orderId
+          in: path
+          description: ID of Conference that needs to be fetched
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+            maximum: 10
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: object
+                xml:
+                  name: Order
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  Conference:
+                    type: object
+                    xml:
+                      name: Conference
+                    properties:
+                      id:
+                        type: integer
+                        format: int64
+                      category:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: number
+                            category:
+                              type: string
+                            price:
+                              type: number
+                            expires:
+                              type: string
+                      name:
+                        type: string
+                        example: doggie
+                      photoUrls:
+                        type: array
+                        items:
+                          type: string
+                      status:
+                        type: string
+                        description: Conference status in the store
+                        enum:
+                          - available
+                          - pending
+                          - sold
+                      url:
+                        type: string
+                      date:
+                        type: string
+                      photos:
+                        type: array
+                        items:
+                          type: string
+                      admins:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+                    required:
+                      - id
+                      - name
+                      - url
+                      - date
+                  quantity:
+                    type: integer
+                    format: int32
+                  shipDate:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    description: Order Status
+                    enum:
+                      - placed
+                      - approved
+                      - delivered
+                  complete:
+                    type: boolean
+                    default: false
+                  price:
+                    type: number
+                  category:
+                    type: string
+                  form:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                        enum:
+                          - Mr
+                          - Mrs
+                          - P.
+                          - Dr.
+                      first name:
+                        type: string
+                      last name:
+                        type: string
+                      Institution:
+                        type: string
+                      Address:
+                        type: string
+                      Zip:
+                        type: string
+                      City:
+                        type: string
+                      Country:
+                        type: string
+                      Email:
+                        type: string
+                      Phone:
+                        type: string
+                      category:
+                        type: string
+                      price:
+                        type: string
+                    required:
+                      - title
+                      - first name
+                      - last name
+                      - Country
+                      - Email
+                      - Phone
+                      - category
+                  admin:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          format: int64
+                        isAdmin:
+                          type: boolean
+                          default: false
+                        name:
+                          type: string
+                        email:
+                          type: string
+                        lastname:
+                          type: string
+                        phone:
+                          type: string
+                        address:
+                          type: string
+                        photo:
+                          type: string
+                        conferences:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Conference'
+            application/json:
+              schema:
+                type: object
+                xml:
+                  name: Order
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  Conference:
+                    type: object
+                    xml:
+                      name: Conference
+                    properties:
+                      id:
+                        type: integer
+                        format: int64
+                      category:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: number
+                            category:
+                              type: string
+                            price:
+                              type: number
+                            expires:
+                              type: string
+                      name:
+                        type: string
+                        example: doggie
+                      photoUrls:
+                        type: array
+                        items:
+                          type: string
+                      status:
+                        type: string
+                        description: Conference status in the store
+                        enum:
+                          - available
+                          - pending
+                          - sold
+                      url:
+                        type: string
+                      date:
+                        type: string
+                      photos:
+                        type: array
+                        items:
+                          type: string
+                      admins:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+                    required:
+                      - id
+                      - name
+                      - url
+                      - date
+                  quantity:
+                    type: integer
+                    format: int32
+                  shipDate:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    description: Order Status
+                    enum:
+                      - placed
+                      - approved
+                      - delivered
+                  complete:
+                    type: boolean
+                    default: false
+                  price:
+                    type: number
+                  category:
+                    type: string
+                  form:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                        enum:
+                          - Mr
+                          - Mrs
+                          - P.
+                          - Dr.
+                      first name:
+                        type: string
+                      last name:
+                        type: string
+                      Institution:
+                        type: string
+                      Address:
+                        type: string
+                      Zip:
+                        type: string
+                      City:
+                        type: string
+                      Country:
+                        type: string
+                      Email:
+                        type: string
+                      Phone:
+                        type: string
+                      category:
+                        type: string
+                      price:
+                        type: string
+                    required:
+                      - title
+                      - first name
+                      - last name
+                      - Country
+                      - Email
+                      - Phone
+                      - category
+                  admin:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          format: int64
+                        isAdmin:
+                          type: boolean
+                          default: false
+                        name:
+                          type: string
+                        email:
+                          type: string
+                        lastname:
+                          type: string
+                        phone:
+                          type: string
+                        address:
+                          type: string
+                        photo:
+                          type: string
+                        conferences:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Conference'
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Order not found
+      tags:
+        - order
+    delete:
+      summary: Delete purchase order by ID
+      description: For valid response try integer IDs with positive integer value. Negative or non-integer values will generate API errors
+      operationId: deleteOrder
+      parameters:
+        - name: orderId
+          in: path
+          description: ID of the order that needs to be deleted
+          required: true
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid ID supplied
+        '404':
+          description: Order not found
+      tags:
+        - order
+  /order:
+    post:
+      summary: Place an order for a Conference
+      description: Place an order for a Conference
+      operationId: placeOrder
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/xml:
+              schema:
+                type: object
+                xml:
+                  name: Order
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  Conference:
+                    type: object
+                    xml:
+                      name: Conference
+                    properties:
+                      id:
+                        type: integer
+                        format: int64
+                      category:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: number
+                            category:
+                              type: string
+                            price:
+                              type: number
+                            expires:
+                              type: string
+                      name:
+                        type: string
+                        example: doggie
+                      photoUrls:
+                        type: array
+                        items:
+                          type: string
+                      status:
+                        type: string
+                        description: Conference status in the store
+                        enum:
+                          - available
+                          - pending
+                          - sold
+                      url:
+                        type: string
+                      date:
+                        type: string
+                      photos:
+                        type: array
+                        items:
+                          type: string
+                      admins:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+                    required:
+                      - id
+                      - name
+                      - url
+                      - date
+                  quantity:
+                    type: integer
+                    format: int32
+                  shipDate:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    description: Order Status
+                    enum:
+                      - placed
+                      - approved
+                      - delivered
+                  complete:
+                    type: boolean
+                    default: false
+                  price:
+                    type: number
+                  category:
+                    type: string
+                  form:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                        enum:
+                          - Mr
+                          - Mrs
+                          - P.
+                          - Dr.
+                      first name:
+                        type: string
+                      last name:
+                        type: string
+                      Institution:
+                        type: string
+                      Address:
+                        type: string
+                      Zip:
+                        type: string
+                      City:
+                        type: string
+                      Country:
+                        type: string
+                      Email:
+                        type: string
+                      Phone:
+                        type: string
+                      category:
+                        type: string
+                      price:
+                        type: string
+                    required:
+                      - title
+                      - first name
+                      - last name
+                      - Country
+                      - Email
+                      - Phone
+                      - category
+                  admin:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          format: int64
+                        isAdmin:
+                          type: boolean
+                          default: false
+                        name:
+                          type: string
+                        email:
+                          type: string
+                        lastname:
+                          type: string
+                        phone:
+                          type: string
+                        address:
+                          type: string
+                        photo:
+                          type: string
+                        conferences:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Conference'
+            application/json:
+              schema:
+                type: object
+                xml:
+                  name: Order
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  Conference:
+                    type: object
+                    xml:
+                      name: Conference
+                    properties:
+                      id:
+                        type: integer
+                        format: int64
+                      category:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: number
+                            category:
+                              type: string
+                            price:
+                              type: number
+                            expires:
+                              type: string
+                      name:
+                        type: string
+                        example: doggie
+                      photoUrls:
+                        type: array
+                        items:
+                          type: string
+                      status:
+                        type: string
+                        description: Conference status in the store
+                        enum:
+                          - available
+                          - pending
+                          - sold
+                      url:
+                        type: string
+                      date:
+                        type: string
+                      photos:
+                        type: array
+                        items:
+                          type: string
+                      admins:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+                    required:
+                      - id
+                      - name
+                      - url
+                      - date
+                  quantity:
+                    type: integer
+                    format: int32
+                  shipDate:
+                    type: string
+                    format: date-time
+                  status:
+                    type: string
+                    description: Order Status
+                    enum:
+                      - placed
+                      - approved
+                      - delivered
+                  complete:
+                    type: boolean
+                    default: false
+                  price:
+                    type: number
+                  category:
+                    type: string
+                  form:
+                    type: object
+                    properties:
+                      title:
+                        type: string
+                        enum:
+                          - Mr
+                          - Mrs
+                          - P.
+                          - Dr.
+                      first name:
+                        type: string
+                      last name:
+                        type: string
+                      Institution:
+                        type: string
+                      Address:
+                        type: string
+                      Zip:
+                        type: string
+                      City:
+                        type: string
+                      Country:
+                        type: string
+                      Email:
+                        type: string
+                      Phone:
+                        type: string
+                      category:
+                        type: string
+                      price:
+                        type: string
+                    required:
+                      - title
+                      - first name
+                      - last name
+                      - Country
+                      - Email
+                      - Phone
+                      - category
+                  admin:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                          format: int64
+                        isAdmin:
+                          type: boolean
+                          default: false
+                        name:
+                          type: string
+                        email:
+                          type: string
+                        lastname:
+                          type: string
+                        phone:
+                          type: string
+                        address:
+                          type: string
+                        photo:
+                          type: string
+                        conferences:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Conference'
+        '400':
+          description: Invalid Order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              xml:
+                name: Order
+              properties:
+                id:
+                  type: integer
+                  format: int64
+                Conference:
+                  type: object
+                  xml:
+                    name: Conference
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    category:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: number
+                          category:
+                            type: string
+                          price:
+                            type: number
+                          expires:
+                            type: string
+                    name:
+                      type: string
+                      example: doggie
+                    photoUrls:
+                      type: array
+                      items:
+                        type: string
+                    status:
+                      type: string
+                      description: Conference status in the store
+                      enum:
+                        - available
+                        - pending
+                        - sold
+                    url:
+                      type: string
+                    date:
+                      type: string
+                    photos:
+                      type: array
+                      items:
+                        type: string
+                    admins:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/User'
+                  required:
+                    - id
+                    - name
+                    - url
+                    - date
+                quantity:
+                  type: integer
+                  format: int32
+                shipDate:
+                  type: string
+                  format: date-time
+                status:
+                  type: string
+                  description: Order Status
+                  enum:
+                    - placed
+                    - approved
+                    - delivered
+                complete:
+                  type: boolean
+                  default: false
+                price:
+                  type: number
+                category:
+                  type: string
+                form:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      enum:
+                        - Mr
+                        - Mrs
+                        - P.
+                        - Dr.
+                    first name:
+                      type: string
+                    last name:
+                      type: string
+                    Institution:
+                      type: string
+                    Address:
+                      type: string
+                    Zip:
+                      type: string
+                    City:
+                      type: string
+                    Country:
+                      type: string
+                    Email:
+                      type: string
+                    Phone:
+                      type: string
+                    category:
+                      type: string
+                    price:
+                      type: string
+                  required:
+                    - title
+                    - first name
+                    - last name
+                    - Country
+                    - Email
+                    - Phone
+                    - category
+                admin:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: int64
+                      isAdmin:
+                        type: boolean
+                        default: false
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      lastname:
+                        type: string
+                      phone:
+                        type: string
+                      address:
+                        type: string
+                      photo:
+                        type: string
+                      conferences:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Conference'
+        description: order placed for purchasing the Conference ticket
+        required: true
+      parameters: []
+      tags:
+        - order
+    put:
+      summary: Updates an order
+      operationId: put-order
+      responses:
+        '200':
+          description: OK
+      description: 'Updates an order  '
+      security:
+        - api_key: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              xml:
+                name: Order
+              properties:
+                id:
+                  type: integer
+                  format: int64
+                Conference:
+                  type: object
+                  xml:
+                    name: Conference
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    category:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          id:
+                            type: number
+                          category:
+                            type: string
+                          price:
+                            type: number
+                          expires:
+                            type: string
+                    name:
+                      type: string
+                      example: doggie
+                    photoUrls:
+                      type: array
+                      items:
+                        type: string
+                    status:
+                      type: string
+                      description: Conference status in the store
+                      enum:
+                        - available
+                        - pending
+                        - sold
+                    url:
+                      type: string
+                    date:
+                      type: string
+                    photos:
+                      type: array
+                      items:
+                        type: string
+                    admins:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/User'
+                  required:
+                    - id
+                    - name
+                    - url
+                    - date
+                quantity:
+                  type: integer
+                  format: int32
+                shipDate:
+                  type: string
+                  format: date-time
+                status:
+                  type: string
+                  description: Order Status
+                  enum:
+                    - placed
+                    - approved
+                    - delivered
+                complete:
+                  type: boolean
+                  default: false
+                price:
+                  type: number
+                category:
+                  type: string
+                form:
+                  type: object
+                  properties:
+                    title:
+                      type: string
+                      enum:
+                        - Mr
+                        - Mrs
+                        - P.
+                        - Dr.
+                    first name:
+                      type: string
+                    last name:
+                      type: string
+                    Institution:
+                      type: string
+                    Address:
+                      type: string
+                    Zip:
+                      type: string
+                    City:
+                      type: string
+                    Country:
+                      type: string
+                    Email:
+                      type: string
+                    Phone:
+                      type: string
+                    category:
+                      type: string
+                    price:
+                      type: string
+                  required:
+                    - title
+                    - first name
+                    - last name
+                    - Country
+                    - Email
+                    - Phone
+                    - category
+                admin:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id:
+                        type: integer
+                        format: int64
+                      isAdmin:
+                        type: boolean
+                        default: false
+                      name:
+                        type: string
+                      email:
+                        type: string
+                      lastname:
+                        type: string
+                      phone:
+                        type: string
+                      address:
+                        type: string
+                      photo:
+                        type: string
+                      conferences:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Conference'
+        description: The Updated Order
+      tags:
+        - order
+  '/order/validate/{orderId}':
+    parameters:
+      - schema:
+          type: string
+        name: orderId
+        in: path
+        required: true
+    get:
+      summary: Validate Order
+      operationId: get-order-validate-orderId
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      description: Validates an Order
+      security:
+        - api_key: []
+      parameters:
+        - schema:
+            type: number
+          in: query
+          name: orderId
+          description: order Id
+      tags:
+        - order
+  /form/register:
+    summary: Register a form
+    put:
+      summary: Register a form
+      description: Send user form to server for registration
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                  enum:
+                    - Mr
+                    - Mrs
+                    - P.
+                    - Dr.
+                first name:
+                  type: string
+                last name:
+                  type: string
+                Institution:
+                  type: string
+                Address:
+                  type: string
+                Zip:
+                  type: string
+                City:
+                  type: string
+                Country:
+                  type: string
+                Email:
+                  type: string
+                Phone:
+                  type: string
+                category:
+                  type: string
+                price:
+                  type: string
+              required:
+                - title
+                - first name
+                - last name
+                - Country
+                - Email
+                - Phone
+                - category
+        required: true
+        description: Form
+      operationId: register
+      tags:
+        - account
+      security:
+        - api_key: []
+  '/form/{formId}':
+    parameters:
+      - schema:
+          type: number
+        name: formId
+        in: path
+        required: true
+    get:
+      summary: Get Form
+      tags:
+        - order
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  title:
+                    type: string
+                    enum:
+                      - Mr
+                      - Mrs
+                      - P.
+                      - Dr.
+                  first name:
+                    type: string
+                  last name:
+                    type: string
+                  Institution:
+                    type: string
+                  Address:
+                    type: string
+                  Zip:
+                    type: string
+                  City:
+                    type: string
+                  Country:
+                    type: string
+                  Email:
+                    type: string
+                  Phone:
+                    type: string
+                  category:
+                    type: string
+                  price:
+                    type: string
+                required:
+                  - title
+                  - first name
+                  - last name
+                  - Country
+                  - Email
+                  - Phone
+                  - category
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      operationId: get-form-formId
+      description: Get a form by Id
+      parameters: []
+    delete:
+      summary: Delete form
+      operationId: delete-form-formId
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+      security:
+        - api_key: []
+      description: Delete form
+      tags:
+        - order
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+    Order:
+      type: object
+      xml:
+        name: Order
+      properties:
+        id:
+          type: integer
+          format: int64
+        Conference:
+          type: object
+          xml:
+            name: Conference
+          properties:
+            id:
+              type: integer
+              format: int64
+            category:
+              type: array
+              items:
+                type: object
+                properties:
+                  id:
+                    type: number
+                  category:
+                    type: string
+                  price:
+                    type: number
+                  expires:
+                    type: string
+            name:
+              type: string
+              example: doggie
+            photoUrls:
+              type: array
+              items:
+                type: string
+            status:
+              type: string
+              description: Conference status in the store
+              enum:
+                - available
+                - pending
+                - sold
+            url:
+              type: string
+            date:
+              type: string
+            photos:
+              type: array
+              items:
+                type: string
+            admins:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+          required:
+            - id
+            - name
+            - url
+            - date
+        quantity:
+          type: integer
+          format: int32
+        shipDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+          description: Order Status
+          enum:
+            - placed
+            - approved
+            - delivered
+        complete:
+          type: boolean
+          default: false
+        price:
+          type: number
+        category:
+          type: string
+        form:
+          type: object
+          properties:
+            title:
+              type: string
+              enum:
+                - Mr
+                - Mrs
+                - P.
+                - Dr.
+            first name:
+              type: string
+            last name:
+              type: string
+            Institution:
+              type: string
+            Address:
+              type: string
+            Zip:
+              type: string
+            City:
+              type: string
+            Country:
+              type: string
+            Email:
+              type: string
+            Phone:
+              type: string
+            category:
+              type: string
+            price:
+              type: string
+          required:
+            - title
+            - first name
+            - last name
+            - Country
+            - Email
+            - Phone
+            - category
+        admin:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: integer
+                format: int64
+              isAdmin:
+                type: boolean
+                default: false
+              name:
+                type: string
+              email:
+                type: string
+              lastname:
+                type: string
+              phone:
+                type: string
+              address:
+                type: string
+              photo:
+                type: string
+              conferences:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Conference'
+    Conference:
+      type: object
+      xml:
+        name: Conference
+      properties:
+        id:
+          type: integer
+          format: int64
+        category:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: number
+              category:
+                type: string
+              price:
+                type: number
+              expires:
+                type: string
+        name:
+          type: string
+          example: doggie
+        photoUrls:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          description: Conference status in the store
+          enum:
+            - available
+            - pending
+            - sold
+        url:
+          type: string
+        date:
+          type: string
+        photos:
+          type: array
+          items:
+            type: string
+        admins:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+      required:
+        - id
+        - name
+        - url
+        - date
+    Form:
+      type: object
+      properties:
+        title:
+          type: string
+          enum:
+            - Mr
+            - Mrs
+            - P.
+            - Dr.
+        first name:
+          type: string
+        last name:
+          type: string
+        Institution:
+          type: string
+        Address:
+          type: string
+        Zip:
+          type: string
+        City:
+          type: string
+        Country:
+          type: string
+        Email:
+          type: string
+        Phone:
+          type: string
+        category:
+          type: string
+        price:
+          type: string
+      required:
+        - title
+        - first name
+        - last name
+        - Country
+        - Email
+        - Phone
+        - category
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        isAdmin:
+          type: boolean
+          default: false
+        name:
+          type: string
+        email:
+          type: string
+        lastname:
+          type: string
+        phone:
+          type: string
+        address:
+          type: string
+        photo:
+          type: string
+        conferences:
+          type: array
+          items:
+            $ref: '#/components/schemas/Conference'
+  requestBodies:
+    Conference:
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - name
+              - photoUrls
+            properties:
+              id:
+                type: integer
+                format: int64
+              category:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  name:
+                    type: string
+                xml:
+                  name: Category
+              name:
+                type: string
+                example: doggie
+              photoUrls:
+                type: array
+                xml:
+                  name: photoUrl
+                  wrapped: true
+                items:
+                  type: string
+              tags:
+                type: array
+                xml:
+                  name: tag
+                  wrapped: true
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    name:
+                      type: string
+                  xml:
+                    name: Tag
+              status:
+                type: string
+                description: Conference status in the store
+                enum:
+                  - available
+                  - pending
+                  - sold
+            xml:
+              name: Conference
+        application/xml:
+          schema:
+            type: object
+            required:
+              - name
+              - photoUrls
+            properties:
+              id:
+                type: integer
+                format: int64
+              category:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    format: int64
+                  name:
+                    type: string
+                xml:
+                  name: Category
+              name:
+                type: string
+                example: doggie
+              photoUrls:
+                type: array
+                xml:
+                  name: photoUrl
+                  wrapped: true
+                items:
+                  type: string
+              tags:
+                type: array
+                xml:
+                  name: tag
+                  wrapped: true
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      format: int64
+                    name:
+                      type: string
+                  xml:
+                    name: Tag
+              status:
+                type: string
+                description: Conference status in the store
+                enum:
+                  - available
+                  - pending
+                  - sold
+            xml:
+              name: Conference
+      description: Conference object that needs to be added to the service
+      required: true
+    UserArray:
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ''
+      description: List of user object
+      required: true
+  securitySchemes:
+    api_key:
+      name: API Key
+      type: apiKey
+      in: query
+  links: {}
+  callbacks: {}
+tags:
+  - name: account
+    description: Concerns accounts
+  - name: participant
+    description: Participant info
+  - name: conference
+    description: Access to conference
+  - name: user
+    description: Operations about users
+  - name: order
+    description: Operations about orders
+externalDocs:
+  description: ''
+  url: 'https://mermade.github.io/shins/asyncapi.html'
+security: []
