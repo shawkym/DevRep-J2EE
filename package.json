@@ -9,7 +9,7 @@
   "description": "",
   "dependencies": {
     "body-parser": "^1.17.2",
-    "bower": "^1.7.7",
+    "bower": "^1.8.8",
     "buffer-to-vinyl": "^1.1.0",
     "express": "^4.13.3",
     "gulp": "^4.0.2",
